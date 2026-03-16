@@ -2,7 +2,7 @@
 
 import { SokratechProvider } from "@ppl-sokratech-sdk/ppl-a4-sdk-web";
 
-const sdkConfig = {
+export const sdkConfig = {
   apiKey: 'demo-api-key-12345',
   apiDomain: 'https://api.sokratech.example',
   recipes: {
