@@ -15,7 +15,12 @@ type AuthDebugModalProps = {
   payload: AuthDebugPayload | null;
 };
 
-const MAX_BLOCK_CHARS = 12000;
+const MAX_VALUE_CHARS = 500;
+
+type TruncationStats = {
+  truncatedValues: number;
+  omittedChars: number;
+};
 
 function safeStringify(value: unknown): string {
   try {
@@ -25,16 +30,57 @@ function safeStringify(value: unknown): string {
   }
 }
 
-function truncateJson(value: unknown, maxChars = MAX_BLOCK_CHARS) {
-  const raw = safeStringify(value);
-  if (raw.length <= maxChars) {
-    return { text: raw, truncated: false, omittedChars: 0 };
+function truncateValueByLength(value: unknown, stats: TruncationStats, seen: WeakSet<object>): unknown {
+  if (typeof value === "string") {
+    if (value.length <= MAX_VALUE_CHARS) {
+      return value;
+    }
+
+    const omitted = value.length - MAX_VALUE_CHARS;
+    stats.truncatedValues += 1;
+    stats.omittedChars += omitted;
+    return `${value.slice(0, MAX_VALUE_CHARS)}... <truncated ${omitted} chars>`;
   }
 
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => truncateValueByLength(item, stats, seen));
+  }
+
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  if (seen.has(value)) {
+    return "[Circular]";
+  }
+
+  seen.add(value);
+
+  const source = value as Record<string, unknown>;
+  const result: Record<string, unknown> = {};
+
+  for (const [key, nestedValue] of Object.entries(source)) {
+    result[key] = truncateValueByLength(nestedValue, stats, seen);
+  }
+
+  seen.delete(value);
+
+  return result;
+}
+
+function truncateJson(value: unknown) {
+  const stats: TruncationStats = { truncatedValues: 0, omittedChars: 0 };
+  const sanitized = truncateValueByLength(value, stats, new WeakSet<object>());
+
   return {
-    text: `${raw.slice(0, maxChars)}\n... <truncated ${raw.length - maxChars} chars>`,
-    truncated: true,
-    omittedChars: raw.length - maxChars,
+    text: safeStringify(sanitized),
+    truncated: stats.truncatedValues > 0,
+    omittedChars: stats.omittedChars,
+    truncatedValues: stats.truncatedValues,
   };
 }
 
@@ -103,6 +149,7 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
             jsonText={eventsJson.text}
             isTruncated={eventsJson.truncated}
             omittedChars={eventsJson.omittedChars}
+            truncatedValues={eventsJson.truncatedValues}
           />
           <DebugSection
             title="Fingerprint"
@@ -110,6 +157,7 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
             jsonText={fingerprintJson.text}
             isTruncated={fingerprintJson.truncated}
             omittedChars={fingerprintJson.omittedChars}
+            truncatedValues={fingerprintJson.truncatedValues}
           />
           <DebugSection
             title="Detection Result"
@@ -117,6 +165,7 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
             jsonText={detectionJson.text}
             isTruncated={detectionJson.truncated}
             omittedChars={detectionJson.omittedChars}
+            truncatedValues={detectionJson.truncatedValues}
           />
         </div>
       </div>
@@ -130,16 +179,24 @@ type DebugSectionProps = {
   jsonText: string;
   isTruncated: boolean;
   omittedChars: number;
+  truncatedValues: number;
 };
 
-function DebugSection({ title, subtitle, jsonText, isTruncated, omittedChars }: DebugSectionProps) {
+function DebugSection({
+  title,
+  subtitle,
+  jsonText,
+  isTruncated,
+  omittedChars,
+  truncatedValues,
+}: DebugSectionProps) {
   return (
     <section>
       <div className="mb-1 flex items-center justify-between gap-2">
         <h4 className="text-base font-semibold">{title}</h4>
         {isTruncated && (
           <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">
-            Truncated ({omittedChars} chars omitted)
+            Truncated ({truncatedValues} value(s), {omittedChars} chars omitted)
           </span>
         )}
       </div>
