@@ -8,8 +8,11 @@ export const sdkConfig = {
   recipes: {
     behavioral: {
       enabled: true,
-      mouse: true,
+      cursor: true,
       keyboard: true,
+      click: true,
+      mouseScroll: true,
+      ruleBased: true,
     },
     fingerprint: {
       enabled: true,
