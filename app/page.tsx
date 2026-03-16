@@ -1,18 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { BehavioralAnalyzerDemo } from "@/components/BehavioralAnalyzerDemo";
 import { BehavioralDemo } from "@/components/BehavioralDemo";
 import { FingerprintDemo } from "@/components/FingerprintDemo";
 import { DetectionDemo } from "@/components/DetectionDemo";
 import { RegisterDemo } from "@/components/RegisterDemo";
 import { LoginDemo } from "@/components/LoginDemo";
 
-type Tab = "behavioral" | "fingerprint" | "detection" | "register" | "login";
+type Tab = "behavioral" | "analyzer" | "fingerprint" | "detection" | "register" | "login";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<Tab>("login");
+  const [activeTab, setActiveTab] = useState<Tab>("analyzer");
 
-  const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "register", "login"];
+  const tabs: Tab[] = ["behavioral", "analyzer", "fingerprint", "detection", "register", "login"];
 
   return (
     <div className="min-h-screen bg-zinc-50 p-4 py-6 text-black dark:bg-black dark:text-white sm:p-6 sm:py-8 lg:p-8">
@@ -44,6 +45,7 @@ export default function Home() {
 
         <main className="w-full">
           {activeTab === "behavioral" && <BehavioralDemo />}
+          {activeTab === "analyzer" && <BehavioralAnalyzerDemo />}
           {activeTab === "fingerprint" && <FingerprintDemo />}
           {activeTab === "detection" && <DetectionDemo />}
           {activeTab === "register" && <RegisterDemo />}
