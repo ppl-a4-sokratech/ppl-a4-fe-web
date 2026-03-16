@@ -59,15 +59,16 @@ export function RegisterDemo() {
 
       const result = await response.json();
 
+      setDebugPayload({
+        behavioral: behavioralData,
+        fingerprint: fingerprintData,
+        detection: detectionData,
+      });
+
       if (result.isBot) {
         setResultMessage({ type: "error", text: "Registration Blocked: Bot Detected 🤖" });
       } else if (result.success) {
         setResultMessage({ type: "success", text: "Registration Successful! Human Verified 👨‍💻" });
-        setDebugPayload({
-          behavioral: behavioralData,
-          fingerprint: fingerprintData,
-          detection: detectionData,
-        });
         setUsername("");
         setEmail("");
         setPassword("");
@@ -138,7 +139,7 @@ export function RegisterDemo() {
             {resultMessage.text}
           </div>
 
-          {resultMessage.type === "success" && debugPayload && (
+          {debugPayload && (
             <button
               type="button"
               onClick={() => setIsDebugModalOpen(true)}

@@ -48,15 +48,16 @@ export function LoginDemo() {
 
       const result = await response.json();
 
+      setDebugPayload({
+        behavioral: behavioralData,
+        fingerprint: fingerprintData,
+        detection: detectionData,
+      });
+
       if (result.isBot) {
         setResultMessage({ type: "error", text: "Login Failed: Bot Detected 🤖" });
       } else if (result.success) {
         setResultMessage({ type: "success", text: "Login Successful: Human Verified 👨‍💻" });
-        setDebugPayload({
-          behavioral: behavioralData,
-          fingerprint: fingerprintData,
-          detection: detectionData,
-        });
       } else {
         setResultMessage({ type: "error", text: result.error || "Login failed." });
       }
@@ -104,7 +105,7 @@ export function LoginDemo() {
             {resultMessage.text}
           </div>
 
-          {resultMessage.type === "success" && debugPayload && (
+          {debugPayload && (
             <button
               type="button"
               onClick={() => setIsDebugModalOpen(true)}
