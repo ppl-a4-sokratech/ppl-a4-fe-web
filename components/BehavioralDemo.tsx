@@ -46,6 +46,8 @@ export function BehavioralDemo() {
             <Stat label="Cursor Events" value={payload.cursorEvents.length} />
             <Stat label="Key Events" value={payload.keyEvents.length} />
             <Stat label="Paste Events" value={payload.pasteEvents.length} />
+            <Stat label="Click Events" value={payload.clickEvents.length} />
+            <Stat label="Scroll Events" value={payload.mouseScrollEvents.length} />
           </div>
 
           {payload.cursorEvents.length > 0 && (
@@ -62,6 +64,33 @@ export function BehavioralDemo() {
               <summary>Key Events (first 10)</summary>
               <pre style={styles.pre}>
                 {JSON.stringify(payload.keyEvents.slice(0, 10), null, 2)}
+              </pre>
+            </details>
+          )}
+
+          {payload.pasteEvents.length > 0 && (
+            <details style={styles.details}>
+              <summary>Paste Events (first 10)</summary>
+              <pre style={styles.pre}>
+                {JSON.stringify(payload.pasteEvents.slice(0, 10), null, 2)}
+              </pre>
+            </details>
+          )}
+
+          {payload.clickEvents.length > 0 && (
+            <details style={styles.details}>
+              <summary>Click Events (first 10)</summary>
+              <pre style={styles.pre}>
+                {JSON.stringify(payload.clickEvents.slice(0, 10), null, 2)}
+              </pre>
+            </details>
+          )}
+
+          {payload.mouseScrollEvents.length > 0 && (
+            <details style={styles.details}>
+              <summary>Scroll Events (first 10)</summary>
+              <pre style={styles.pre}>
+                {JSON.stringify(payload.mouseScrollEvents.slice(0, 10), null, 2)}
               </pre>
             </details>
           )}
