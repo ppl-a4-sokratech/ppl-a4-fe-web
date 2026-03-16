@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { sdkConfig } from "../app/providers";
 
 type SetupCheckModalProps = {
@@ -78,11 +79,16 @@ function RecipeSection({
 }
 
 export function SetupCheckModal({ isOpen, onClose }: SetupCheckModalProps) {
+  const { recipes } = sdkConfig;
+
+  const enabledFeaturesCount = useMemo(
+    () => countEnabledFeatures(recipes),
+    [recipes]
+  );
+
   if (!isOpen) {
     return null;
   }
-
-  const { recipes } = sdkConfig;
 
   return (
     <div
@@ -139,7 +145,7 @@ export function SetupCheckModal({ isOpen, onClose }: SetupCheckModalProps) {
             <span className="text-zinc-500 dark:text-zinc-400">
               Total enabled features:{" "}
               <strong className="text-blue-600 dark:text-blue-400">
-                {countEnabledFeatures(recipes)}
+                {enabledFeaturesCount}
               </strong>
             </span>
           </div>
