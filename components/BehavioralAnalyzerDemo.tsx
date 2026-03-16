@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BehavioralAnalyzer,
-  useBehavioral,
+  BehavioralCollector,
   type BehavioralFlags,
   type BehavioralPayload,
 } from "@ppl-sokratech-sdk/ppl-a4-sdk-web";
+import { analyzerDemoTests, type DemoTestCase } from "@/__test__/AnalyzerTest";
 
 const FLAG_LABELS: Record<keyof BehavioralFlags, string> = {
   isMouseJump: "Mouse jumps",
@@ -22,56 +23,111 @@ const FLAG_LABELS: Record<keyof BehavioralFlags, string> = {
 };
 
 export function BehavioralAnalyzerDemo() {
-  const { drain } = useBehavioral();
   const analyzer = useMemo(() => new BehavioralAnalyzer(), []);
+  const collectorRef = useRef<BehavioralCollector | null>(null);
 
   const [payload, setPayload] = useState<BehavioralPayload | null>(null);
   const [flags, setFlags] = useState<BehavioralFlags | null>(null);
   const [analysisCount, setAnalysisCount] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
+  const [activeTestId, setActiveTestId] = useState<string | null>(null);
 
-  const handleAnalyze = () => {
-    const nextPayload = drain();
-    if (!nextPayload) {
-      setMessage("No behavioral payload is available yet.");
-      setPayload(null);
-      setFlags(null);
+  useEffect(() => {
+    const collector = new BehavioralCollector();
+    collector.start();
+    collectorRef.current = collector;
+
+    return () => {
+      collector.stop();
+      collectorRef.current = null;
+    };
+  }, []);
+
+  const handleAnalyzeLive = () => {
+    const collector = collectorRef.current;
+    if (!collector) {
+      setMessage("Behavioral collector is not ready.");
       return;
     }
 
+    const nextPayload = collector.drain();
     const nextFlags = analyzer.analyze(nextPayload);
 
-    setMessage(null);
     setPayload(nextPayload);
     setFlags(nextFlags);
+    setActiveTestId(null);
     setAnalysisCount((count) => count + 1);
+    setMessage("Analyzed live behavioral payload from BehavioralCollector.");
+  };
+
+  const handleRunDemoTest = (testCase: DemoTestCase) => {
+    const nextPayload = testCase.payload;
+    const nextFlags = analyzer.analyze(nextPayload);
+    const actualTrueFlags = getTrueFlags(nextFlags);
+    const missingFlags = testCase.expectedTrueFlags.filter((flag) => !actualTrueFlags.includes(flag));
+
+    setPayload(nextPayload);
+    setFlags(nextFlags);
+    setActiveTestId(testCase.id);
+    setAnalysisCount((count) => count + 1);
+    setMessage(
+      missingFlags.length === 0
+        ? `Demo test "${testCase.label}" raised the expected flag(s): ${testCase.expectedTrueFlags.join(", ")}.`
+        : `Demo test "${testCase.label}" missed: ${missingFlags.join(", ")}.`,
+    );
   };
 
   const activeFlags = flags
-    ? (Object.entries(flags).filter(([, value]) => value) as [keyof BehavioralFlags, boolean][])
+    ? getTrueFlags(flags)
     : [];
 
   return (
     <div>
       <h2 style={styles.heading}>Behavioral Analyzer</h2>
       <p style={styles.desc}>
-        This demo uses the React adapter to drain captured behavioral events, then runs the payload through{" "}
-        <code>BehavioralAnalyzer</code> to flag automation-like patterns.
+        This demo supports both live behavioral analysis and synthetic quick tests without relying on a React
+        adapter.
       </p>
 
       <div style={styles.interactionArea}>
         <p style={styles.helperText}>
-          Move the mouse, click a few times, type into the fields, then run the analyzer.
+          Interact naturally on this page, then run live analysis. You can also use quick tests for flags that are
+          hard to reproduce manually.
         </p>
         <div style={styles.inputGroup}>
           <input type="text" placeholder="Type naturally here" style={styles.input} />
-          <textarea placeholder="Or paste text here" rows={4} style={styles.textarea} />
+          <textarea placeholder="Try typing or pasting here" rows={4} style={styles.textarea} />
         </div>
       </div>
 
-      <button onClick={handleAnalyze} style={styles.button}>
-        Analyze Current Session
+      <button onClick={handleAnalyzeLive} style={styles.button}>
+        Analyze Live Session
       </button>
+
+      <div style={styles.testPanel}>
+        <h3 style={styles.testHeading}>Quick Tests</h3>
+        <p style={styles.testDesc}>
+          Tombol ini memakai payload sintetis dari <code>__test__/AnalyzerTest.ts</code> untuk flag yang susah
+          direproduksi manual.
+        </p>
+        <div style={styles.testGrid}>
+          {analyzerDemoTests.map((testCase) => (
+            <button
+              key={testCase.id}
+              type="button"
+              onClick={() => handleRunDemoTest(testCase)}
+              style={{
+                ...styles.testButton,
+                ...(activeTestId === testCase.id ? styles.testButtonActive : {}),
+              }}
+              title={testCase.description}
+            >
+              <strong>{testCase.label}</strong>
+              <span style={styles.testButtonMeta}>{testCase.expectedTrueFlags.join(", ")}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       {message && <p style={styles.message}>{message}</p>}
 
@@ -123,6 +179,12 @@ export function BehavioralAnalyzerDemo() {
       )}
     </div>
   );
+}
+
+function getTrueFlags(flags: BehavioralFlags): Array<keyof BehavioralFlags> {
+  return Object.entries(flags)
+    .filter(([, value]) => value)
+    .map(([key]) => key as keyof BehavioralFlags);
 }
 
 function Stat({
@@ -185,6 +247,38 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
     maxWidth: 240,
   },
+  testPanel: {
+    marginTop: "1rem",
+    padding: "1rem",
+    borderRadius: 8,
+    background: "#f8f8fc",
+    border: "1px solid #e5e7eb",
+  },
+  testHeading: { margin: "0 0 0.35rem", fontSize: "1rem" },
+  testDesc: { margin: "0 0 0.85rem", color: "#666", fontSize: "0.9rem", lineHeight: 1.5 },
+  testGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+    gap: "0.75rem",
+  },
+  testButton: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.35rem",
+    alignItems: "flex-start",
+    textAlign: "left",
+    padding: "0.85rem",
+    borderRadius: 8,
+    border: "1px solid #d4d4d8",
+    background: "#fff",
+    cursor: "pointer",
+    minWidth: 0,
+  },
+  testButtonActive: {
+    borderColor: "#4361ee",
+    boxShadow: "0 0 0 1px #4361ee inset",
+  },
+  testButtonMeta: { color: "#666", fontSize: "0.78rem", fontFamily: "monospace" },
   message: { marginTop: "0.75rem", color: "#b45309", fontSize: "0.9rem" },
   results: { marginTop: "1.5rem" },
   subheading: { fontSize: "1rem", marginBottom: "0.75rem" },
