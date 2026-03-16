@@ -6,6 +6,7 @@ export type AuthDebugPayload = {
   behavioral: unknown;
   fingerprint: unknown;
   detection: unknown;
+  analysis: unknown;
 };
 
 type AuthDebugModalProps = {
@@ -86,9 +87,11 @@ function truncateJson(value: unknown) {
 
 function getEventsBlock(behavioral: unknown) {
   const emptyEvents = {
-    mouseEvents: [],
+    cursorEvents: [],
     keyEvents: [],
     pasteEvents: [],
+    clickEvents: [],
+    mouseScrollEvents: [],
   };
 
   if (!behavioral || typeof behavioral !== "object") {
@@ -98,9 +101,11 @@ function getEventsBlock(behavioral: unknown) {
   const source = behavioral as Record<string, unknown>;
 
   return {
-    mouseEvents: Array.isArray(source.mouseEvents) ? source.mouseEvents : [],
+    cursorEvents: Array.isArray(source.cursorEvents) ? source.cursorEvents : [],
     keyEvents: Array.isArray(source.keyEvents) ? source.keyEvents : [],
     pasteEvents: Array.isArray(source.pasteEvents) ? source.pasteEvents : [],
+    clickEvents: Array.isArray(source.clickEvents) ? source.clickEvents : [],
+    mouseScrollEvents: Array.isArray(source.mouseScrollEvents) ? source.mouseScrollEvents : [],
     capturedAt: source.capturedAt ?? null,
   };
 }
@@ -109,6 +114,7 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
   const eventsJson = useMemo(() => truncateJson(getEventsBlock(payload?.behavioral)), [payload]);
   const fingerprintJson = useMemo(() => truncateJson(payload?.fingerprint ?? null), [payload]);
   const detectionJson = useMemo(() => truncateJson(payload?.detection ?? null), [payload]);
+  const analysisJson = useMemo(() => truncateJson(payload?.analysis ?? null), [payload]);
 
   if (!isOpen) {
     return null;
@@ -130,7 +136,7 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
           <div>
             <h3 className="text-lg font-semibold sm:text-xl">Debug Data</h3>
             <p className="text-xs text-zinc-600 sm:text-sm dark:text-zinc-400">
-              {title} debug payload grouped into 3 JSON blocks for easier demo walkthrough.
+              {title} debug payload grouped into 4 JSON blocks for easier demo walkthrough.
             </p>
           </div>
           <button
@@ -145,11 +151,19 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
         <div className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
           <DebugSection
             title="Events"
-            subtitle="mouse events, key events, paste events"
+            subtitle="cursor events, key events, paste events, click events, scroll events"
             jsonText={eventsJson.text}
             isTruncated={eventsJson.truncated}
             omittedChars={eventsJson.omittedChars}
             truncatedValues={eventsJson.truncatedValues}
+          />
+          <DebugSection
+            title="Behavioral Analysis"
+            subtitle="rule-based bot detection flags from analyzer"
+            jsonText={analysisJson.text}
+            isTruncated={analysisJson.truncated}
+            omittedChars={analysisJson.omittedChars}
+            truncatedValues={analysisJson.truncatedValues}
           />
           <DebugSection
             title="Fingerprint"

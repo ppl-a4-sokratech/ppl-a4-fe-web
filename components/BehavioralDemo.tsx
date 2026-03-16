@@ -43,16 +43,16 @@ export function BehavioralDemo() {
           </h3>
 
           <div style={styles.statRow}>
-            <Stat label="Mouse Events" value={payload.mouseEvents.length} />
+            <Stat label="Cursor Events" value={payload.cursorEvents.length} />
             <Stat label="Key Events" value={payload.keyEvents.length} />
             <Stat label="Paste Events" value={payload.pasteEvents.length} />
           </div>
 
-          {payload.mouseEvents.length > 0 && (
+          {payload.cursorEvents.length > 0 && (
             <details style={styles.details}>
-              <summary>Mouse Events (first 10)</summary>
+              <summary>Cursor Events (first 10)</summary>
               <pre style={styles.pre}>
-                {JSON.stringify(payload.mouseEvents.slice(0, 10), null, 2)}
+                {JSON.stringify(payload.cursorEvents.slice(0, 10), null, 2)}
               </pre>
             </details>
           )}

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useBehavioral, useSDKFingerprint, useDetection } from "@ppl-sokratech-sdk/ppl-a4-sdk-web";
+import { useBehavioral, useSDKFingerprint, useDetection, useBehavioralAnalysis } from "@ppl-sokratech-sdk/ppl-a4-sdk-web";
 import { AuthDebugModal, type AuthDebugPayload } from "@/components/AuthDebugModal";
 
 export function RegisterDemo() {
   const { drain } = useBehavioral();
   const { collect } = useSDKFingerprint();
   const { detect } = useDetection();
+  const { analyze } = useBehavioralAnalysis();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -38,7 +39,7 @@ export function RegisterDemo() {
     setIsDebugModalOpen(false);
 
     try {
-      const behavioralData = drain();
+      const analysisData = analyze();
       const fingerprintData = await collect();
       const detectionData = detect();
 
@@ -50,9 +51,10 @@ export function RegisterDemo() {
           email,
           password,
           botProtection: {
-            behavioral: behavioralData,
+            behavioral: analysisData?.payload ?? null,
             fingerprint: fingerprintData,
             detection: detectionData,
+            analysis: analysisData,
           },
         }),
       });
@@ -60,9 +62,10 @@ export function RegisterDemo() {
       const result = await response.json();
 
       setDebugPayload({
-        behavioral: behavioralData,
+        behavioral: analysisData?.payload ?? null,
         fingerprint: fingerprintData,
         detection: detectionData,
+        analysis: analysisData,
       });
 
       if (result.isBot) {
