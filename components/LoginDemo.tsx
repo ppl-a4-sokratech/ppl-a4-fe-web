@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useBehavioral, useSDKFingerprint, useDetection } from "@ppl-sokratech-sdk/ppl-a4-sdk-web";
+import { AuthDebugModal, type AuthDebugPayload } from "@/components/AuthDebugModal";
 
 export function LoginDemo() {
   const { drain } = useBehavioral();
@@ -12,6 +13,8 @@ export function LoginDemo() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [resultMessage, setResultMessage] = useState<{ type: 'success'|'error', text: string } | null>(null);
+  const [debugPayload, setDebugPayload] = useState<AuthDebugPayload | null>(null);
+  const [isDebugModalOpen, setIsDebugModalOpen] = useState(false);
 
   useEffect(() => {
     drain();
@@ -21,6 +24,8 @@ export function LoginDemo() {
     e.preventDefault();
     setLoading(true);
     setResultMessage(null);
+    setDebugPayload(null);
+    setIsDebugModalOpen(false);
 
     try {
       const behavioralData = drain();
@@ -45,10 +50,17 @@ export function LoginDemo() {
 
       if (result.isBot) {
         setResultMessage({ type: "error", text: "Login Failed: Bot Detected 🤖" });
-      } else {
+      } else if (result.success) {
         setResultMessage({ type: "success", text: "Login Successful: Human Verified 👨‍💻" });
+        setDebugPayload({
+          behavioral: behavioralData,
+          fingerprint: fingerprintData,
+          detection: detectionData,
+        });
+      } else {
+        setResultMessage({ type: "error", text: result.error || "Login failed." });
       }
-    } catch (error) {
+    } catch {
       setResultMessage({ type: "error", text: "An error occurred during login." });
     } finally {
       setLoading(false);
@@ -85,12 +97,31 @@ export function LoginDemo() {
       </form>
 
       {resultMessage && (
-        <div className={`mt-4 p-3 rounded text-center font-medium ${
-          resultMessage.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-        }`}>
-          {resultMessage.text}
+        <div className="mt-4 space-y-3">
+          <div className={`p-3 rounded text-center font-medium ${
+            resultMessage.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+          }`}>
+            {resultMessage.text}
+          </div>
+
+          {resultMessage.type === "success" && debugPayload && (
+            <button
+              type="button"
+              onClick={() => setIsDebugModalOpen(true)}
+              className="w-full rounded bg-zinc-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+            >
+              Debug
+            </button>
+          )}
         </div>
       )}
+
+      <AuthDebugModal
+        isOpen={isDebugModalOpen}
+        onClose={() => setIsDebugModalOpen(false)}
+        title="Login"
+        payload={debugPayload}
+      />
     </div>
   );
 }
