@@ -9,9 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ppl-sokratech-sdk/ppl-a4-sdk-web": "^1.0.3",
     "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
