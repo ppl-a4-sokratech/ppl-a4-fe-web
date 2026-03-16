@@ -83,15 +83,15 @@ export function RegisterDemo() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 border rounded-lg shadow-sm">
-      <h2 className="text-2xl font-bold mb-4">Register</h2>
+    <div className="mx-auto w-full max-w-md rounded-lg border p-4 shadow-sm sm:p-6">
+      <h2 className="mb-4 text-xl font-bold sm:text-2xl">Register</h2>
       <form onSubmit={handleRegister} className="flex flex-col gap-4">
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="border p-2 rounded dark:bg-zinc-800 dark:border-zinc-700"
+          className="w-full rounded border p-2 text-sm sm:text-base dark:border-zinc-700 dark:bg-zinc-800"
           required
         />
         <input
@@ -99,7 +99,7 @@ export function RegisterDemo() {
           placeholder="Email Address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 rounded dark:bg-zinc-800 dark:border-zinc-700"
+          className="w-full rounded border p-2 text-sm sm:text-base dark:border-zinc-700 dark:bg-zinc-800"
           required
         />
         <input
@@ -107,7 +107,7 @@ export function RegisterDemo() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 rounded dark:bg-zinc-800 dark:border-zinc-700"
+          className="w-full rounded border p-2 text-sm sm:text-base dark:border-zinc-700 dark:bg-zinc-800"
           required
           minLength={6}
         />
@@ -116,7 +116,7 @@ export function RegisterDemo() {
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="border p-2 rounded dark:bg-zinc-800 dark:border-zinc-700"
+          className="w-full rounded border p-2 text-sm sm:text-base dark:border-zinc-700 dark:bg-zinc-800"
           required
           minLength={6}
         />
@@ -124,7 +124,7 @@ export function RegisterDemo() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-green-600 text-white p-2 rounded hover:bg-green-700 disabled:opacity-50 transition mt-2"
+          className="mt-2 w-full rounded bg-green-600 p-2 text-sm text-white transition hover:bg-green-700 disabled:opacity-50 sm:text-base"
         >
           {loading ? "Verifying & Registering..." : "Create Account"}
         </button>

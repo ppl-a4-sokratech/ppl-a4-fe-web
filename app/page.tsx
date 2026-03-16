@@ -15,19 +15,23 @@ export default function Home() {
   const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "register", "login"];
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black text-black dark:text-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <header className="text-center mb-10">
-          <h1 className="text-4xl font-bold">Sokratech SDK Implementation</h1>
-          <p className="text-zinc-500 mt-2">PoC for Behavioral, Fingerprint, and Bot Detection</p>
+    <div className="min-h-screen bg-zinc-50 p-4 py-6 text-black dark:bg-black dark:text-white sm:p-6 sm:py-8 lg:p-8">
+      <div className="mx-auto w-full max-w-4xl">
+        <header className="mb-8 text-center sm:mb-10">
+          <h1 className="text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
+            Sokratech SDK Implementation
+          </h1>
+          <p className="mx-auto mt-2 max-w-2xl text-sm text-zinc-500 sm:text-base">
+            PoC for Behavioral, Fingerprint, and Bot Detection
+          </p>
         </header>
 
-        <nav className="flex justify-center gap-2 border-b border-zinc-200 dark:border-zinc-800 mb-8 overflow-x-auto">
+        <nav className="mb-6 flex gap-2 overflow-x-auto border-b border-zinc-200 pb-1 sm:mb-8 sm:justify-center dark:border-zinc-800">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 capitalize font-medium transition-colors ${
+              className={`shrink-0 px-3 py-2 text-sm font-medium capitalize transition-colors sm:px-4 sm:text-base ${
                 activeTab === tab
                   ? "border-b-2 border-blue-600 text-blue-600"
                   : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300"
@@ -38,7 +42,7 @@ export default function Home() {
           ))}
         </nav>
 
-        <main>
+        <main className="w-full">
           {activeTab === "behavioral" && <BehavioralDemo />}
           {activeTab === "fingerprint" && <FingerprintDemo />}
           {activeTab === "detection" && <DetectionDemo />}
