@@ -12,6 +12,7 @@ export const sdkConfig = {
       keyboard: true,
       click: true,
       mouseScroll: true,
+      ruleBased: true,
     },
     fingerprint: {
       enabled: true,
