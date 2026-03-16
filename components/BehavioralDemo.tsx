@@ -14,7 +14,7 @@ export function BehavioralDemo() {
   };
 
   return (
-    <div>
+    <div style={{ minHeight: '150vh', paddingBottom: '20rem' }}>
       <h2 style={styles.heading}>Behavioral Tracking</h2>
       <p style={styles.desc}>
         The SDK is capturing mouse movements, clicks, and keyboard events in real time. Move your mouse around,
@@ -43,16 +43,36 @@ export function BehavioralDemo() {
           </h3>
 
           <div style={styles.statRow}>
-            <Stat label="Mouse Events" value={payload.mouseEvents.length} />
+            <Stat label="Cursor Events" value={payload.cursorEvents.length} />
             <Stat label="Key Events" value={payload.keyEvents.length} />
+            <Stat label="Click Events" value={payload.clickEvents.length} />
+            <Stat label="Scroll Events" value={payload.mouseScrollEvents.length} />
             <Stat label="Paste Events" value={payload.pasteEvents.length} />
           </div>
 
-          {payload.mouseEvents.length > 0 && (
+          {payload.cursorEvents.length > 0 && (
             <details style={styles.details}>
-              <summary>Mouse Events (first 10)</summary>
+              <summary>Cursor Events (first 10)</summary>
               <pre style={styles.pre}>
-                {JSON.stringify(payload.mouseEvents.slice(0, 10), null, 2)}
+                {JSON.stringify(payload.cursorEvents.slice(0, 10), null, 2)}
+              </pre>
+            </details>
+          )}
+
+          {payload.clickEvents.length > 0 && (
+            <details style={styles.details}>
+              <summary>Click Events (first 10)</summary>
+              <pre style={styles.pre}>
+                {JSON.stringify(payload.clickEvents.slice(0, 10), null, 2)}
+              </pre>
+            </details>
+          )}
+
+          {payload.mouseScrollEvents.length > 0 && (
+            <details style={styles.details}>
+              <summary>Scroll Events (first 10)</summary>
+              <pre style={styles.pre}>
+                {JSON.stringify(payload.mouseScrollEvents.slice(0, 10), null, 2)}
               </pre>
             </details>
           )}
