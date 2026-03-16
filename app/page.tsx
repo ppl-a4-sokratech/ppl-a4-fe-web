@@ -6,11 +6,13 @@ import { FingerprintDemo } from "@/components/FingerprintDemo";
 import { DetectionDemo } from "@/components/DetectionDemo";
 import { RegisterDemo } from "@/components/RegisterDemo";
 import { LoginDemo } from "@/components/LoginDemo";
+import { SetupCheckModal } from "@/components/SetupCheckModal";
 
 type Tab = "behavioral" | "fingerprint" | "detection" | "register" | "login";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("login");
+  const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
 
   const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "register", "login"];
 
@@ -24,7 +26,18 @@ export default function Home() {
           <p className="mx-auto mt-2 max-w-2xl text-sm text-zinc-500 sm:text-base">
             PoC for Behavioral, Fingerprint, and Bot Detection
           </p>
+          <button
+            onClick={() => setIsSetupModalOpen(true)}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border-2 border-blue-600 bg-white px-4 py-2 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-50 dark:bg-transparent dark:hover:bg-blue-900/20"
+          >
+            ⚙️ Setup Check
+          </button>
         </header>
+
+        <SetupCheckModal
+          isOpen={isSetupModalOpen}
+          onClose={() => setIsSetupModalOpen(false)}
+        />
 
         <nav className="mb-6 flex gap-2 overflow-x-auto border-b border-zinc-200 pb-1 sm:mb-8 sm:justify-center dark:border-zinc-800">
           {tabs.map((tab) => (
