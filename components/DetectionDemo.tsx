@@ -87,8 +87,8 @@ function DetectionCard({
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  heading: { fontSize: '1.3rem', marginBottom: '0.5rem' },
-  desc: { color: '#555', lineHeight: 1.6 },
+  heading: { fontSize: 'clamp(1.1rem, 2.4vw, 1.3rem)', marginBottom: '0.5rem' },
+  desc: { color: '#555', lineHeight: 1.6, fontSize: '0.95rem' },
   button: {
     padding: '0.6rem 1.4rem',
     fontSize: '0.95rem',
@@ -98,16 +98,19 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 6,
     cursor: 'pointer',
     fontWeight: 600,
+    width: '100%',
+    maxWidth: 220,
   },
   results: { marginTop: '1.5rem' },
   subheading: { fontSize: '1rem', marginBottom: '0.75rem' },
-  row: { display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' },
+  row: { display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' },
   card: {
     flex: '1 1 260px',
     background: '#fafafa',
     borderRadius: 8,
-    padding: '1.25rem',
+    padding: '1rem',
     border: '2px solid',
+    minWidth: 0,
   },
   cardHeader: { display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' },
   cardDesc: { fontSize: '0.85rem', color: '#555', lineHeight: 1.5, margin: '0 0 0.75rem' },

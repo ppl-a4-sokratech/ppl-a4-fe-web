@@ -88,9 +88,9 @@ function FingerprintCard({
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  heading: { fontSize: '1.3rem', marginBottom: '0.5rem' },
-  desc: { color: '#555', lineHeight: 1.6 },
-  actions: { display: 'flex', gap: '0.75rem', marginBottom: '1rem' },
+  heading: { fontSize: 'clamp(1.1rem, 2.4vw, 1.3rem)', marginBottom: '0.5rem' },
+  desc: { color: '#555', lineHeight: 1.6, fontSize: '0.95rem' },
+  actions: { display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' },
   button: {
     padding: '0.6rem 1.4rem',
     fontSize: '0.95rem',
@@ -100,6 +100,8 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 6,
     cursor: 'pointer',
     fontWeight: 600,
+    width: '100%',
+    maxWidth: 240,
   },
   buttonSecondary: {
     padding: '0.6rem 1.4rem',
@@ -110,6 +112,8 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 6,
     cursor: 'pointer',
     fontWeight: 600,
+    width: '100%',
+    maxWidth: 240,
   },
   error: { color: '#e53935', fontWeight: 600 },
   results: { marginTop: '1rem' },
@@ -126,6 +130,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '1rem',
     border: '1px solid #e0e0e0',
     overflow: 'hidden',
+    minWidth: 0,
   },
   cardTitle: { margin: '0 0 0.5rem', fontSize: '0.95rem', color: '#4361ee' },
   cardPre: {
