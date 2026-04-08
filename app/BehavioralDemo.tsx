@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useBehavioral, SokratechProvider } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
+import { useBehavioral, useSokratech, SokratechProvider } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
 import type { BehavioralPayload } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
 
 export function BehavioralDemo() {
   const [toggles, setToggles] = useState({
     cursor: true,
-    keyboard: true,
+    keyboard: false,
     click: true,
     mouseScroll: true,
   });
@@ -18,6 +18,9 @@ export function BehavioralDemo() {
         enabled: true,
         ...toggles,
       },
+    },
+    profiling: {
+      enabled: true,
     },
   };
 
@@ -53,13 +56,20 @@ export function BehavioralDemo() {
 
 function BehavioralPanel() {
   const { drain } = useBehavioral();
+  const { sdk } = useSokratech();
   const [payload, setPayload] = useState<BehavioralPayload | null>(null);
   const [drainCount, setDrainCount] = useState(0);
+  const [isDestroyed, setIsDestroyed] = useState(false);
 
   const handleDrain = () => {
     const data = drain();
     setPayload(data);
     setDrainCount((c) => c + 1);
+  };
+
+  const handleDestroy = () => {
+    sdk.destroy();
+    setIsDestroyed(true);
   };
 
   return (
@@ -84,12 +94,22 @@ function BehavioralPanel() {
           </div>
         </div>
 
-        <button
-          onClick={handleDrain}
-          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 sm:w-auto"
-        >
-          Drain Events
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={handleDrain}
+            disabled={isDestroyed}
+            className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            Drain Events
+          </button>
+          <button
+            onClick={handleDestroy}
+            disabled={isDestroyed}
+            className="w-full rounded-lg bg-red-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {isDestroyed ? 'Destroyed' : 'Destroy'}
+          </button>
+        </div>
 
         {payload && (
           <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">

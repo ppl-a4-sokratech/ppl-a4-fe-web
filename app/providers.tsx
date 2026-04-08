@@ -30,6 +30,9 @@ export const sdkConfig = {
       webdriver: true,
     },
   },
+  profiling: {
+    enabled: true,
+  },
 };
 
 export function Providers({ children }: { children: React.ReactNode }) {
