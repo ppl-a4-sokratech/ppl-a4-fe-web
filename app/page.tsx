@@ -7,15 +7,16 @@ import { DetectionDemo } from "@/components/DetectionDemo";
 import { RegisterDemo } from "@/components/RegisterDemo";
 import { LoginDemo } from "@/components/LoginDemo";
 import { AnalyzerDemo } from "@/components/AnalyzerDemo";
+import { ProfilingDemo } from "@/components/ProfilingDemo";
 import { SetupCheckModal } from "@/components/SetupCheckModal";
 
-type Tab = "behavioral" | "fingerprint" | "detection" | "analyzer" | "register" | "login";
+type Tab = "behavioral" | "fingerprint" | "detection" | "analyzer" | "register" | "login" | "profiling";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("login");
   const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
 
-  const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "analyzer", "register", "login"];
+  const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "analyzer", "register", "login", "profiling"];
 
   return (
     <div className="min-h-screen bg-zinc-50 p-4 py-6 text-black dark:bg-black dark:text-white sm:p-6 sm:py-8 lg:p-8">
@@ -63,6 +64,7 @@ export default function Home() {
           {activeTab === "analyzer" && <AnalyzerDemo />}
           {activeTab === "register" && <RegisterDemo />}
           {activeTab === "login" && <LoginDemo />}
+          {activeTab === "profiling" && <ProfilingDemo />}
         </main>
       </div>
     </div>
