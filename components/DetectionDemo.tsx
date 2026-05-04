@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useDetection } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
 import type { DetectionResult } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
+import { sanitizeDetectionData, useConfigCheck } from '@/app/providers';
 
 export function DetectionDemo() {
   const { detect } = useDetection();
+  const { sdkRecipes } = useConfigCheck();
   const [result, setResult] = useState<DetectionResult | null>(null);
 
   const handleDetect = () => {
-    const data = detect();
+    const data = sanitizeDetectionData(detect(), sdkRecipes);
     setResult(data);
   };
 
@@ -90,9 +92,10 @@ const styles: Record<string, React.CSSProperties> = {
   heading: { fontSize: 'clamp(1.1rem, 2.4vw, 1.3rem)', marginBottom: '0.5rem' },
   desc: { color: '#555', lineHeight: 1.6, fontSize: '0.95rem' },
   button: {
+    marginTop: '1rem',
     padding: '0.6rem 1.4rem',
     fontSize: '0.95rem',
-    backgroundColor: '#4361ee',
+    backgroundColor: '#1f3f78',
     color: '#fff',
     border: 'none',
     borderRadius: 6,
@@ -106,7 +109,7 @@ const styles: Record<string, React.CSSProperties> = {
   row: { display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' },
   card: {
     flex: '1 1 260px',
-    background: '#fafafa',
+    background: '#f7f9fd',
     borderRadius: 8,
     padding: '1rem',
     border: '2px solid',
