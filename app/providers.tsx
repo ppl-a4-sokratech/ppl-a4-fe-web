@@ -20,9 +20,7 @@ function resolveTransportConfig() {
   const origin = typeof window === "undefined" ? "http://localhost:3000" : window.location.origin;
   return {
     configApiBase: `${origin}/api/proxy`,
-    sdkApiDomain: origin,
-    sdkApiBasePath: "/api/proxy",
-    sdkIngestEndpoint: "/api/proxy/ingest",
+    sdkApiDomain: `${origin}/api/proxy`,
   };
 }
 
@@ -198,12 +196,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
     workflowId: sdkConfig.workflowId,
     profileId: sdkConfig.profileId,
   });
+  const [reinitTick, setReinitTick] = useState(0);
 
   const setIdentifiers = useCallback(({ workflowId, profileId }: { workflowId: string; profileId: string }) => {
     setIdentifiersState({
       workflowId: workflowId.trim(),
       profileId: profileId.trim(),
     });
+    setReinitTick((tick) => tick + 1);
   }, []);
 
   useEffect(() => {
@@ -262,30 +262,26 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     loadConfig();
     return () => controller.abort();
-  }, [identifiers.profileId, identifiers.workflowId, setIdentifiers]);
+  }, [identifiers.profileId, identifiers.workflowId, reinitTick, setIdentifiers]);
 
   const providerConfig = useMemo(
     () => {
       const transport = resolveTransportConfig();
       return {
-        apiKey: "mock-dynamic-config",
         apiDomain: transport.sdkApiDomain,
-        apiBasePath: transport.sdkApiBasePath,
-        ingestEndpoint: transport.sdkIngestEndpoint,
-        recipes: runtimeState.sdkRecipes,
+        workflowId: runtimeState.workflowId,
+        profileId: runtimeState.profileId,
         profiling: {
           enabled: true,
         },
       };
     },
-    [runtimeState.sdkRecipes]
+    [runtimeState.profileId, runtimeState.workflowId]
   );
-
-  const providerKey = `${runtimeState.workflowId}:${runtimeState.profileId}:${runtimeState.status}:${runtimeState.source}`;
 
   return (
     <ConfigCheckContext.Provider value={runtimeState}>
-      <SokratechProvider key={providerKey} config={providerConfig}>{children}</SokratechProvider>
+      <SokratechProvider config={providerConfig}>{children}</SokratechProvider>
     </ConfigCheckContext.Provider>
   );
 }

@@ -136,7 +136,7 @@ export function LoginDemo() {
   const { collect } = useSDKFingerprint();
   const { detect } = useDetection();
   const { sdk } = useSokratech();
-  const { sdkRecipes } = useConfigCheck();
+  const { sdkRecipes, workflowId, profileId } = useConfigCheck();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -232,16 +232,29 @@ export function LoginDemo() {
       setDecision(ingestResponse);
       setTransportSource(source);
       const capturedSignals = (capturedIngestRequest as CapturedIngestRequest | null)?.signals;
+      const currentSdkConfig = sdk.getConfig();
       console.log("[LoginDemo] captured ingest request", capturedIngestRequest);
       console.log("[LoginDemo] captured ingest signals", capturedSignals);
       console.log("[LoginDemo] ingest response used by UI", ingestResponse);
       console.log("[LoginDemo] ingest source", source);
+      console.log("[LoginDemo] active workflow/profile from config check", { workflowId, profileId });
+      console.log("[LoginDemo] active workflow/profile from sdk config", {
+        workflowId: currentSdkConfig.workflowId,
+        profileId: currentSdkConfig.profileId,
+      });
       setDebugPayload({
         behavioral: capturedSignals?.behavioral ?? null,
         fingerprint: capturedSignals?.fingerprint ?? null,
         detection: capturedSignals?.detection ?? null,
         analysis: null,
-        ingestRequest: capturedIngestRequest ?? { source: "sdk.flushIngest()", note: "Unable to capture request body" },
+        ingestRequest: {
+          workflowId,
+          profileId,
+          sdkConfigWorkflowId: currentSdkConfig.workflowId ?? null,
+          sdkConfigProfileId: currentSdkConfig.profileId ?? null,
+          payload: capturedIngestRequest,
+          note: capturedIngestRequest ? undefined : "Unable to capture request body",
+        },
         ingestResponse,
       });
 

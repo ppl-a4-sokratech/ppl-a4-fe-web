@@ -27,6 +27,7 @@ export default function Home() {
 
   const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "login", "profiling"];
   const activeTabLabel = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
+  const isReinitializing = status === "loading";
 
   useEffect(() => {
     window.localStorage.setItem("demo.sidebar.collapsed", String(isPanelCollapsed));
@@ -97,14 +98,16 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setIdentifiers({ workflowId: workflowDraft, profileId: profileDraft })}
-                    className="rounded-md bg-[#df9f86] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#d89176]"
+                    disabled={isReinitializing}
+                    className="rounded-md bg-[#df9f86] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#d89176] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Apply + Re-init
+                    {isReinitializing ? "Reinitializing..." : "Apply + Re-init"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsSetupModalOpen(true)}
-                    className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                    disabled={isReinitializing}
+                    className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
                   >
                     Open Config Check
                   </button>
