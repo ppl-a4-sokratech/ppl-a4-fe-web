@@ -7,6 +7,8 @@ export type AuthDebugPayload = {
   fingerprint: unknown;
   detection: unknown;
   analysis: unknown;
+  ingestRequest?: unknown;
+  ingestResponse?: unknown;
 };
 
 type AuthDebugModalProps = {
@@ -115,6 +117,8 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
   const fingerprintJson = useMemo(() => truncateJson(payload?.fingerprint ?? null), [payload]);
   const detectionJson = useMemo(() => truncateJson(payload?.detection ?? null), [payload]);
   const analysisJson = useMemo(() => truncateJson(payload?.analysis ?? null), [payload]);
+  const ingestRequestJson = useMemo(() => truncateJson(payload?.ingestRequest ?? null), [payload]);
+  const ingestResponseJson = useMemo(() => truncateJson(payload?.ingestResponse ?? null), [payload]);
 
   if (!isOpen) {
     return null;
@@ -180,6 +184,22 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
             isTruncated={detectionJson.truncated}
             omittedChars={detectionJson.omittedChars}
             truncatedValues={detectionJson.truncatedValues}
+          />
+          <DebugSection
+            title="Ingest Request"
+            subtitle="payload sent to POST /ingest"
+            jsonText={ingestRequestJson.text}
+            isTruncated={ingestRequestJson.truncated}
+            omittedChars={ingestRequestJson.omittedChars}
+            truncatedValues={ingestRequestJson.truncatedValues}
+          />
+          <DebugSection
+            title="Ingest Response"
+            subtitle="response returned from ingest endpoint or mock"
+            jsonText={ingestResponseJson.text}
+            isTruncated={ingestResponseJson.truncated}
+            omittedChars={ingestResponseJson.omittedChars}
+            truncatedValues={ingestResponseJson.truncatedValues}
           />
         </div>
       </div>
