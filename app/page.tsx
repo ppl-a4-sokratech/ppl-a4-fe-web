@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BehavioralDemo } from "@/components/BehavioralDemo";
 import { FingerprintDemo } from "@/components/FingerprintDemo";
 import { DetectionDemo } from "@/components/DetectionDemo";
@@ -14,13 +14,23 @@ type Tab = "behavioral" | "fingerprint" | "detection" | "login" | "profiling";
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("login");
   const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
-  const [isPanelCollapsed, setIsPanelCollapsed] = useState(true);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(() => {
+    if (typeof window === "undefined") {
+      return true;
+    }
+    const saved = window.localStorage.getItem("demo.sidebar.collapsed");
+    return saved === null ? true : saved === "true";
+  });
   const { workflowId, profileId, setIdentifiers, status } = useConfigCheck();
   const [workflowDraft, setWorkflowDraft] = useState(workflowId);
   const [profileDraft, setProfileDraft] = useState(profileId);
 
   const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "login", "profiling"];
   const activeTabLabel = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
+
+  useEffect(() => {
+    window.localStorage.setItem("demo.sidebar.collapsed", String(isPanelCollapsed));
+  }, [isPanelCollapsed]);
 
   return (
     <div className="min-h-screen bg-[#f6f5f3] text-zinc-900">
