@@ -87,36 +87,10 @@ function truncateJson(value: unknown) {
   };
 }
 
-function getEventsBlock(behavioral: unknown) {
-  const emptyEvents = {
-    cursorEvents: [],
-    keyEvents: [],
-    pasteEvents: [],
-    clickEvents: [],
-    mouseScrollEvents: [],
-  };
-
-  if (!behavioral || typeof behavioral !== "object") {
-    return emptyEvents;
-  }
-
-  const source = behavioral as Record<string, unknown>;
-
-  return {
-    cursorEvents: Array.isArray(source.cursorEvents) ? source.cursorEvents : [],
-    keyEvents: Array.isArray(source.keyEvents) ? source.keyEvents : [],
-    pasteEvents: Array.isArray(source.pasteEvents) ? source.pasteEvents : [],
-    clickEvents: Array.isArray(source.clickEvents) ? source.clickEvents : [],
-    mouseScrollEvents: Array.isArray(source.mouseScrollEvents) ? source.mouseScrollEvents : [],
-    capturedAt: source.capturedAt ?? null,
-  };
-}
-
 export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugModalProps) {
-  const eventsJson = useMemo(() => truncateJson(getEventsBlock(payload?.behavioral)), [payload]);
+  const eventsJson = useMemo(() => truncateJson(payload?.behavioral ?? null), [payload]);
   const fingerprintJson = useMemo(() => truncateJson(payload?.fingerprint ?? null), [payload]);
   const detectionJson = useMemo(() => truncateJson(payload?.detection ?? null), [payload]);
-  const analysisJson = useMemo(() => truncateJson(payload?.analysis ?? null), [payload]);
   const ingestRequestJson = useMemo(() => truncateJson(payload?.ingestRequest ?? null), [payload]);
   const ingestResponseJson = useMemo(() => truncateJson(payload?.ingestResponse ?? null), [payload]);
 
@@ -155,23 +129,15 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
         <div className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
           <DebugSection
             title="Events"
-            subtitle="cursor events, key events, paste events, click events, scroll events"
+            subtitle="behavioral payload sent to ingest"
             jsonText={eventsJson.text}
             isTruncated={eventsJson.truncated}
             omittedChars={eventsJson.omittedChars}
             truncatedValues={eventsJson.truncatedValues}
           />
           <DebugSection
-            title="Behavioral Analysis"
-            subtitle="rule-based bot detection flags from analyzer"
-            jsonText={analysisJson.text}
-            isTruncated={analysisJson.truncated}
-            omittedChars={analysisJson.omittedChars}
-            truncatedValues={analysisJson.truncatedValues}
-          />
-          <DebugSection
             title="Fingerprint"
-            subtitle="full fingerprint data captured from SDK"
+            subtitle="fingerprint payload sent to ingest"
             jsonText={fingerprintJson.text}
             isTruncated={fingerprintJson.truncated}
             omittedChars={fingerprintJson.omittedChars}
@@ -179,7 +145,7 @@ export function AuthDebugModal({ isOpen, onClose, title, payload }: AuthDebugMod
           />
           <DebugSection
             title="Detection Result"
-            subtitle="analysis and detection summary"
+            subtitle="detection payload sent to ingest"
             jsonText={detectionJson.text}
             isTruncated={detectionJson.truncated}
             omittedChars={detectionJson.omittedChars}

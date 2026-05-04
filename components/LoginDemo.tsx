@@ -36,6 +36,20 @@ type IngestResponsePayload = {
   };
 };
 
+type CapturedIngestRequest = {
+  requestId: string;
+  sentAt: number;
+  signals?: {
+    behavioral?: unknown;
+    fingerprint?: unknown;
+    detection?: unknown;
+  };
+};
+
+type IngestClientLike = {
+  sendIngestData: (payload: CapturedIngestRequest) => Promise<IngestApiResponse>;
+};
+
 function createMockIngestResponse(requestId: string): IngestResponsePayload {
   return {
     status: 200,
@@ -166,23 +180,45 @@ export function LoginDemo() {
       const analyzeMs = 0;
 
       const t0Fingerprint = performance.now();
-      const fingerprintData = sanitizeFingerprintData(await collect(useCache ? undefined : true), sdkRecipes);
+      await sanitizeFingerprintData(await collect(useCache ? undefined : true), sdkRecipes);
       const fingerprintMs = performance.now() - t0Fingerprint;
 
       const t0Detect = performance.now();
-      const detectionData = sanitizeDetectionData(detect(), sdkRecipes);
+      sanitizeDetectionData(detect(), sdkRecipes);
       const detectMs = performance.now() - t0Detect;
 
       const t0Fetch = performance.now();
       let ingestResponse: IngestResponsePayload;
       let source: "backend" | "mock" = "backend";
+      let capturedIngestRequest: CapturedIngestRequest | null = null;
       try {
-        const response: IngestApiResponse = await sdk.flushIngest();
-        if (!response.ok || !response.data) {
-          throw new Error(response.ok ? "Ingest response data is empty" : response.error);
+        const sdkWithPrivate = sdk as unknown as { ingestClient?: IngestClientLike };
+        const ingestClient = sdkWithPrivate.ingestClient;
+        const originalSend = ingestClient?.sendIngestData;
+
+        try {
+          if (ingestClient && originalSend) {
+            ingestClient.sendIngestData = async (payload: CapturedIngestRequest) => {
+              capturedIngestRequest = payload;
+              return originalSend.call(ingestClient, payload);
+            };
+          }
+
+          const response: IngestApiResponse = await sdk.flushIngest();
+
+          if (!response.ok || !response.data) {
+            console.log("[LoginDemo] flushIngest non-ok response", response);
+            throw new Error(response.ok ? "Ingest response data is empty" : response.error);
+          }
+          console.log("[LoginDemo] flushIngest success response", response.data);
+          ingestResponse = response.data as IngestResponsePayload;
+        } finally {
+          if (ingestClient && originalSend) {
+            ingestClient.sendIngestData = originalSend;
+          }
         }
-        ingestResponse = response.data as IngestResponsePayload;
-      } catch {
+      } catch (error) {
+        console.log("[LoginDemo] flushIngest failed, using mock response fallback", error);
         source = "mock";
         const fallbackRequestId = typeof crypto !== "undefined" && "randomUUID" in crypto
           ? crypto.randomUUID()
@@ -195,15 +231,17 @@ export function LoginDemo() {
       setTiming({ analyzeMs, fingerprintMs, detectMs, fetchMs, cached: useCache });
       setDecision(ingestResponse);
       setTransportSource(source);
+      const capturedSignals = (capturedIngestRequest as CapturedIngestRequest | null)?.signals;
+      console.log("[LoginDemo] captured ingest request", capturedIngestRequest);
+      console.log("[LoginDemo] captured ingest signals", capturedSignals);
+      console.log("[LoginDemo] ingest response used by UI", ingestResponse);
+      console.log("[LoginDemo] ingest source", source);
       setDebugPayload({
-        behavioral: null,
-        fingerprint: fingerprintData,
-        detection: detectionData,
+        behavioral: capturedSignals?.behavioral ?? null,
+        fingerprint: capturedSignals?.fingerprint ?? null,
+        detection: capturedSignals?.detection ?? null,
         analysis: null,
-        ingestRequest: {
-          source: "sdk.flushIngest()",
-          note: "Payload is generated internally by SDK v1.1.0",
-        },
+        ingestRequest: capturedIngestRequest ?? { source: "sdk.flushIngest()", note: "Unable to capture request body" },
         ingestResponse,
       });
 

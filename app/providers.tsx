@@ -12,9 +12,19 @@ import type {
 
 export const sdkConfig = {
   apiDomain: "http://ec2-52-45-170-166.compute-1.amazonaws.com:3000",
-  workflowId: "demo-workflow-id",
-  profileId: "demo-profile-id",
+  workflowId: "11111111-1111-4111-8111-111111111111",
+  profileId: "22222222-2222-4222-8222-222222222222",
 };
+
+function resolveTransportConfig() {
+  const origin = typeof window === "undefined" ? "http://localhost:3000" : window.location.origin;
+  return {
+    configApiBase: `${origin}/api/proxy`,
+    sdkApiDomain: origin,
+    sdkApiBasePath: "/api/proxy",
+    sdkIngestEndpoint: "/api/proxy/ingest",
+  };
+}
 
 type BackendRecipeGroup = {
   enabled: boolean;
@@ -208,7 +218,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     }));
 
     async function loadConfig() {
-      const endpoint = `${sdkConfig.apiDomain}/sdk/v1/config/${identifiers.workflowId}/${identifiers.profileId}`;
+      const transport = resolveTransportConfig();
+      const endpoint = `${transport.configApiBase}/sdk/v1/config/${identifiers.workflowId}/${identifiers.profileId}`;
 
       try {
         const response = await fetch(endpoint, { signal: controller.signal });
@@ -254,14 +265,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }, [identifiers.profileId, identifiers.workflowId, setIdentifiers]);
 
   const providerConfig = useMemo(
-    () => ({
-      apiKey: "mock-dynamic-config",
-      apiDomain: sdkConfig.apiDomain,
-      recipes: runtimeState.sdkRecipes,
-      profiling: {
-        enabled: true,
-      },
-    }),
+    () => {
+      const transport = resolveTransportConfig();
+      return {
+        apiKey: "mock-dynamic-config",
+        apiDomain: transport.sdkApiDomain,
+        apiBasePath: transport.sdkApiBasePath,
+        ingestEndpoint: transport.sdkIngestEndpoint,
+        recipes: runtimeState.sdkRecipes,
+        profiling: {
+          enabled: true,
+        },
+      };
+    },
     [runtimeState.sdkRecipes]
   );
 
