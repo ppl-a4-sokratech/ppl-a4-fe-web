@@ -3,6 +3,12 @@
 import { useState, useEffect } from "react";
 import { useBehavioral, useSDKFingerprint, useDetection, useBehavioralAnalysis } from "@ppl-sokratech-sdk/ppl-a4-sdk-web";
 import { AuthDebugModal, type AuthDebugPayload } from "@/components/AuthDebugModal";
+import {
+  sanitizeAnalysisResult,
+  sanitizeDetectionData,
+  sanitizeFingerprintData,
+  useConfigCheck,
+} from "@/app/providers";
 
 interface TimingResult {
   analyzeMs: number;
@@ -64,6 +70,7 @@ export function RegisterDemo() {
   const { collect } = useSDKFingerprint();
   const { detect } = useDetection();
   const { analyze } = useBehavioralAnalysis();
+  const { sdkRecipes } = useConfigCheck();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -111,15 +118,15 @@ export function RegisterDemo() {
 
     try {
       const t0Analyze = performance.now();
-      const analysisData = analyze();
+      const analysisData = sanitizeAnalysisResult(analyze(), sdkRecipes);
       const analyzeMs = performance.now() - t0Analyze;
 
       const t0Fingerprint = performance.now();
-      const fingerprintData = await collect(useCache ? undefined : true);
+      const fingerprintData = sanitizeFingerprintData(await collect(useCache ? undefined : true), sdkRecipes);
       const fingerprintMs = performance.now() - t0Fingerprint;
 
       const t0Detect = performance.now();
-      const detectionData = detect();
+      const detectionData = sanitizeDetectionData(detect(), sdkRecipes);
       const detectMs = performance.now() - t0Detect;
 
       const t0Fetch = performance.now();
