@@ -40,7 +40,7 @@ function BehavioralPanel() {
             <input
               type="text"
               placeholder="Type something here..."
-              className="w-full rounded-md border border-zinc-300 px-4 py-2 text-sm focus:border-[#1f3f78] focus:outline-none focus:ring-2 focus:ring-[#1f3f78]/20"
+              className="w-full rounded-md border border-zinc-300 px-4 py-2 text-sm focus:border-[#1f3f78] focus:outline-none focus:ring-2 focus:ring-[#1f3f78]/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-400"
             />
           </div>
         </div>
