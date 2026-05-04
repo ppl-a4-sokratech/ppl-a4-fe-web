@@ -4,68 +4,154 @@ import { useState } from "react";
 import { BehavioralDemo } from "@/components/BehavioralDemo";
 import { FingerprintDemo } from "@/components/FingerprintDemo";
 import { DetectionDemo } from "@/components/DetectionDemo";
-import { RegisterDemo } from "@/components/RegisterDemo";
 import { LoginDemo } from "@/components/LoginDemo";
-import { AnalyzerDemo } from "@/components/AnalyzerDemo";
 import { ProfilingDemo } from "@/components/ProfilingDemo";
 import { SetupCheckModal } from "@/components/SetupCheckModal";
+import { useConfigCheck } from "./providers";
 
-type Tab = "behavioral" | "fingerprint" | "detection" | "analyzer" | "register" | "login" | "profiling";
+type Tab = "behavioral" | "fingerprint" | "detection" | "login" | "profiling";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("login");
   const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(true);
+  const { workflowId, profileId, setIdentifiers, status } = useConfigCheck();
+  const [workflowDraft, setWorkflowDraft] = useState(workflowId);
+  const [profileDraft, setProfileDraft] = useState(profileId);
 
-  const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "analyzer", "register", "login", "profiling"];
+  const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "login", "profiling"];
+  const activeTabLabel = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-4 py-6 text-black dark:bg-black dark:text-white sm:p-6 sm:py-8 lg:p-8">
-      <div className="mx-auto w-full max-w-4xl">
-        <header className="mb-8 text-center sm:mb-10">
-          <h1 className="text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
-            Sokratech SDK Implementation
-          </h1>
-          <p className="mx-auto mt-2 max-w-2xl text-sm text-zinc-500 sm:text-base">
-            PoC for Behavioral, Fingerprint, and Bot Detection
-          </p>
-          <button
-            onClick={() => setIsSetupModalOpen(true)}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg border-2 border-blue-600 bg-white px-4 py-2 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-50 dark:bg-transparent dark:hover:bg-blue-900/20"
-          >
-            ⚙️ Setup Check
-          </button>
-        </header>
+    <div className="min-h-screen bg-[#f6f5f3] text-zinc-900">
+      <div className="mx-auto max-w-[1600px] p-3">
+        <div className="overflow-hidden rounded-2xl border border-[#d9d3ca] bg-[#f9f7f4] shadow-sm">
+          <header className="flex items-center justify-between bg-[#1f3f78] px-6 py-3 text-white">
+            <h1 className="flex items-baseline gap-2 leading-none">
+              <span className="text-3xl font-semibold">Sokratech</span>
+              <span className="text-3xl font-light text-blue-100">SDK Web Demo</span>
+            </h1>
+            <span className="rounded-full bg-white/15 px-3 py-1 text-sm font-medium">
+              {status === "loading" ? "Loading config..." : "Config loaded"}
+            </span>
+          </header>
 
-        <SetupCheckModal
-          isOpen={isSetupModalOpen}
-          onClose={() => setIsSetupModalOpen(false)}
-        />
+          <div className="flex items-center justify-between border-b border-[#e6ddd2] bg-[#fbf9f6] px-6 py-4">
+            <h2 className="text-2xl font-semibold text-[#1f3f78]">Demo Playground</h2>
+            <div />
+          </div>
 
-        <nav className="mb-6 flex gap-2 overflow-x-auto border-b border-zinc-200 pb-1 sm:mb-8 sm:justify-center dark:border-zinc-800">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`shrink-0 px-3 py-2 text-sm font-medium capitalize transition-colors sm:px-4 sm:text-base ${
-                activeTab === tab
-                  ? "border-b-2 border-blue-600 text-blue-600"
-                  : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300"
+          <div className="grid min-h-[74vh] grid-cols-1 lg:grid-cols-[auto_1fr]">
+            <aside
+              className={`overflow-hidden border-r border-[#e6ddd2] bg-[#f8f4ef] transition-[width] duration-300 ease-in-out ${
+                isPanelCollapsed ? "w-[64px]" : "w-[340px]"
               }`}
             >
-              {tab}
-            </button>
-          ))}
-        </nav>
+              <div className="p-3">
+                <button
+                  type="button"
+                  onClick={() => setIsPanelCollapsed((prev) => !prev)}
+                  className="flex w-full items-center justify-center rounded-lg border border-[#dfd2c4] bg-white px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50"
+                  aria-label={isPanelCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                >
+                  {isPanelCollapsed ? "»" : "«"}
+                </button>
+              </div>
 
-        <main className="w-full">
-          {activeTab === "behavioral" && <BehavioralDemo />}
-          {activeTab === "fingerprint" && <FingerprintDemo />}
-          {activeTab === "detection" && <DetectionDemo />}
-          {activeTab === "analyzer" && <AnalyzerDemo />}
-          {activeTab === "register" && <RegisterDemo />}
-          {activeTab === "login" && <LoginDemo />}
-          {activeTab === "profiling" && <ProfilingDemo />}
-        </main>
+              <div className={`px-3 pb-4 transition-opacity duration-200 ${isPanelCollapsed ? "pointer-events-none opacity-0" : "opacity-100"}`}>
+                <div className="rounded-xl border border-[#e6ddd2] bg-white p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-600">Config Route Overrides</p>
+                <div className="mt-2 grid gap-2">
+                  <label className="text-xs font-medium text-zinc-600">
+                    Workflow ID
+                    <input
+                      type="text"
+                      value={workflowDraft}
+                      onChange={(e) => setWorkflowDraft(e.target.value)}
+                      placeholder="workflowId"
+                      className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm"
+                    />
+                  </label>
+                  <label className="text-xs font-medium text-zinc-600">
+                    Identity Profile
+                    <input
+                      type="text"
+                      value={profileDraft}
+                      onChange={(e) => setProfileDraft(e.target.value)}
+                      placeholder="profileId"
+                      className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm"
+                    />
+                  </label>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIdentifiers({ workflowId: workflowDraft, profileId: profileDraft })}
+                    className="rounded-md bg-[#df9f86] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#d89176]"
+                  >
+                    Apply + Re-init
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsSetupModalOpen(true)}
+                    className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100"
+                  >
+                    Open Config Check
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWorkflowDraft(workflowId);
+                      setProfileDraft(profileId);
+                    }}
+                    className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100"
+                  >
+                    Reset
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-zinc-500">Runtime: {workflowId} / {profileId} ({status})</p>
+              </div>
+              </div>
+            </aside>
+
+            <section className="bg-[radial-gradient(circle,#e5ded4_1px,transparent_1.5px)] [background-size:28px_28px] p-5">
+              <nav className="mb-4 rounded-xl border border-[#e6ddd2] bg-white p-2 shadow-sm">
+                <div className="flex flex-wrap gap-2">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`rounded-lg px-3 py-2 text-sm font-medium capitalize transition ${
+                        activeTab === tab
+                          ? "bg-[#1f3f78] text-white shadow-sm"
+                          : "bg-[#f3f6fb] text-[#2c4f8e] hover:bg-[#e6eefb] hover:text-[#1f3f78]"
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+              </nav>
+
+              <main className="rounded-2xl border border-[#e7dbce] bg-white p-5 shadow-sm">
+                <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-3">
+                  <h2 className="text-lg font-semibold text-[#1f3f78]">{activeTabLabel} Demo</h2>
+                  <span className="rounded-full bg-[#e8eef9] px-3 py-1 text-xs font-medium text-[#1f3f78]">Demo Mode</span>
+                </div>
+                {activeTab === "behavioral" && <BehavioralDemo />}
+                {activeTab === "fingerprint" && <FingerprintDemo />}
+                {activeTab === "detection" && <DetectionDemo />}
+                {activeTab === "login" && <LoginDemo />}
+                {activeTab === "profiling" && <ProfilingDemo />}
+              </main>
+            </section>
+          </div>
+
+          <SetupCheckModal
+            isOpen={isSetupModalOpen}
+            onClose={() => setIsSetupModalOpen(false)}
+          />
+        </div>
       </div>
     </div>
   );
