@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { useBehavioralAnalysis } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
 import type { BehavioralAnalysisResult } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
+import { sanitizeAnalysisResult, useConfigCheck } from '@/app/providers';
 
 export function AnalyzerDemo() {
   const { analyze, isRuleBasedEnabled } = useBehavioralAnalysis();
+  const { sdkRecipes } = useConfigCheck();
+  const ruleBasedActive = Boolean(sdkRecipes.behavioral?.ruleBased && isRuleBasedEnabled);
   const [result, setResult] = useState<BehavioralAnalysisResult | null>(null);
   const [analyzeCount, setAnalyzeCount] = useState(0);
 
   const handleAnalyze = () => {
-    const analysisResult = analyze();
+    const analysisResult = sanitizeAnalysisResult(analyze(), sdkRecipes);
     setResult(analysisResult);
     setAnalyzeCount((c) => c + 1);
   };
@@ -29,10 +32,10 @@ export function AnalyzerDemo() {
       <div style={styles.statusBadge}>
         <span style={{
           ...styles.badge,
-          backgroundColor: isRuleBasedEnabled ? '#dcfce7' : '#fee2e2',
-          color: isRuleBasedEnabled ? '#166534' : '#991b1b',
+          backgroundColor: ruleBasedActive ? '#dcfce7' : '#fee2e2',
+          color: ruleBasedActive ? '#166534' : '#991b1b',
         }}>
-          Rule-Based Analysis: {isRuleBasedEnabled ? '✓ Enabled' : '✗ Disabled'}
+          Rule-Based Analysis: {ruleBasedActive ? '✓ Enabled' : '✗ Disabled'}
         </span>
       </div>
 

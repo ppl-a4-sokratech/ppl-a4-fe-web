@@ -161,7 +161,7 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function EventDetails({ title, events }: { title: string; events: any[] }) {
+function EventDetails({ title, events }: { title: string; events: unknown[] }) {
   if (!events || events.length === 0) return null;
   return (
     <details className="group rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">

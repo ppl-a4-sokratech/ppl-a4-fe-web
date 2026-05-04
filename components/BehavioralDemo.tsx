@@ -1,92 +1,53 @@
 import { useState } from 'react';
-import { useBehavioral, SokratechProvider } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
+import { useBehavioral } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
 import type { BehavioralPayload } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
+import { sanitizeBehavioralPayload, useConfigCheck } from '@/app/providers';
 
 export function BehavioralDemo() {
-  const [toggles, setToggles] = useState({
-    cursor: true,
-    keyboard: true,
-    click: true,
-    mouseScroll: true,
-  });
-
-  const config = {
-    apiKey: 'demo-api-key-12345',
-    apiDomain: 'https://api.sokratech.example',
-    recipes: {
-      behavioral: {
-        enabled: true,
-        ...toggles,
-      },
-    },
-  };
-
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-4 text-xl font-bold">Behavioral Toggles</h2>
-        <div className="flex flex-wrap gap-4">
-          {Object.entries(toggles).map(([key, value]) => (
-            <label key={key} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={value}
-                onChange={(e) =>
-                  setToggles((prev) => ({ ...prev, [key]: e.target.checked }))
-                }
-                className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-600 dark:border-zinc-700 dark:bg-zinc-900"
-              />
-              <span className="text-sm font-medium capitalize text-zinc-700 dark:text-zinc-300">
-                {key}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <SokratechProvider key={JSON.stringify(toggles)} config={config}>
-        <BehavioralPanel />
-      </SokratechProvider>
+      <BehavioralPanel />
     </div>
   );
 }
 
 function BehavioralPanel() {
   const { drain } = useBehavioral();
+  const { sdkRecipes } = useConfigCheck();
   const [payload, setPayload] = useState<BehavioralPayload | null>(null);
   const [drainCount, setDrainCount] = useState(0);
 
   const handleDrain = () => {
-    const data = drain();
+    const data = sanitizeBehavioralPayload(drain(), sdkRecipes);
     setPayload(data);
     setDrainCount((c) => c + 1);
   };
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-6 dark:border-blue-900/30 dark:bg-blue-900/10">
-        <h2 className="mb-2 text-xl font-bold text-blue-900 dark:text-blue-100">Behavioral Tracking Panel</h2>
-        <p className="mb-6 text-sm text-blue-700 dark:text-blue-300">
-          The SDK is capturing configured events in real time. Move your mouse around,
-          type on the keyboard, click around, or scroll the page.
+      <div className="rounded-xl border border-[#cfdcf2] bg-[#eef3fb] p-6">
+        <h2 className="mb-2 text-xl font-bold text-[#1f3f78]">Behavioral Collection</h2>
+        <p className="mb-6 text-sm text-[#355a96]">
+          Collects behavioral interaction signals from cursor movement, keyboard input, paste activity,
+          click actions, and scrolling patterns for bot-risk analysis.
         </p>
 
-        <div className="mb-6 flex min-h-[150px] items-center justify-center rounded-lg border-2 border-dashed border-blue-200 bg-white p-6 text-center dark:border-blue-800/50 dark:bg-zinc-950">
+        <div className="mb-6 flex min-h-[150px] items-center justify-center rounded-lg border-2 border-dashed border-[#b8ccea] bg-white p-6 text-center">
           <div className="flex w-full max-w-sm flex-col items-center gap-4">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-zinc-500">
               🖱️ Interact here, then click drain...
             </p>
             <input
               type="text"
               placeholder="Type something here..."
-              className="w-full rounded-md border border-zinc-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              className="w-full rounded-md border border-zinc-300 px-4 py-2 text-sm focus:border-[#1f3f78] focus:outline-none focus:ring-2 focus:ring-[#1f3f78]/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-400"
             />
           </div>
         </div>
 
         <button
           onClick={handleDrain}
-          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 sm:w-auto"
+          className="w-full rounded-lg bg-[#1f3f78] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#193462] focus:outline-none focus:ring-4 focus:ring-[#1f3f78]/20 sm:w-auto"
         >
           Drain Events
         </button>
@@ -134,14 +95,14 @@ function BehavioralPanel() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg bg-zinc-50 p-4 dark:bg-zinc-900">
-      <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{value}</span>
+    <div className="flex flex-col items-center justify-center rounded-lg bg-zinc-50 p-4">
+      <span className="text-2xl font-bold text-[#1f3f78]">{value}</span>
       <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">{label}</span>
     </div>
   );
 }
 
-function EventDetails({ title, events }: { title: string; events: any[] }) {
+function EventDetails({ title, events }: { title: string; events: unknown[] }) {
   if (!events || events.length === 0) return null;
   return (
     <details className="group rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">

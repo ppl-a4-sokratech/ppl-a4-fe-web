@@ -1,7 +1,10 @@
 import { useSDKFingerprint } from '@ppl-sokratech-sdk/ppl-a4-sdk-web';
+import { sanitizeFingerprintData, useConfigCheck } from '@/app/providers';
 
 export function FingerprintDemo() {
   const { data, loading, error, collect } = useSDKFingerprint();
+  const { sdkRecipes } = useConfigCheck();
+  const safeData = data ? sanitizeFingerprintData(data, sdkRecipes) : null;
 
   return (
     <div>
@@ -22,28 +25,28 @@ export function FingerprintDemo() {
 
       {error && <p style={styles.error}>Error: {error}</p>}
 
-      {data && (
+      {safeData && (
         <div style={styles.results}>
           <h3 style={styles.subheading}>
-            Collected at {new Date(data.timestamp).toLocaleTimeString()}
+            Collected at {new Date(safeData.timestamp).toLocaleTimeString()}
           </h3>
 
           <div style={styles.grid}>
-            <FingerprintCard title="Audio" data={data.audio} />
-            <FingerprintCard title="Canvas" data={data.canvas} />
-            <FingerprintCard title="WebGL" data={data.webgl} />
-            <FingerprintCard title="Device" data={data.device} />
-            <FingerprintCard title="Browser" data={data.browser} />
-            <FingerprintCard title="Screen" data={data.screen} />
+            <FingerprintCard title="Audio" data={safeData.audio} />
+            <FingerprintCard title="Canvas" data={safeData.canvas} />
+            <FingerprintCard title="WebGL" data={safeData.webgl} />
+            <FingerprintCard title="Device" data={safeData.device} />
+            <FingerprintCard title="Browser" data={safeData.browser} />
+            <FingerprintCard title="Screen" data={safeData.screen} />
             <FingerprintCard
               title="Fonts"
-              data={data.fonts}
+              data={safeData.fonts}
               renderCustom={
-                data.fonts
+                safeData.fonts
                   ? () => (
                       <p style={{ fontSize: '0.85rem', color: '#555' }}>
-                        {data.fonts!.length} font(s) detected:{' '}
-                        <em>{data.fonts!.slice(0, 8).join(', ')}{data.fonts!.length > 8 ? '…' : ''}</em>
+                        {safeData.fonts!.length} font(s) detected:{' '}
+                        <em>{safeData.fonts!.slice(0, 8).join(', ')}{safeData.fonts!.length > 8 ? '…' : ''}</em>
                       </p>
                     )
                   : undefined
@@ -53,7 +56,7 @@ export function FingerprintDemo() {
 
           <details style={styles.details}>
             <summary>Full Fingerprint (JSON)</summary>
-            <pre style={styles.pre}>{JSON.stringify(data, null, 2)}</pre>
+            <pre style={styles.pre}>{JSON.stringify(safeData, null, 2)}</pre>
           </details>
         </div>
       )}
@@ -90,11 +93,11 @@ function FingerprintCard({
 const styles: Record<string, React.CSSProperties> = {
   heading: { fontSize: 'clamp(1.1rem, 2.4vw, 1.3rem)', marginBottom: '0.5rem' },
   desc: { color: '#555', lineHeight: 1.6, fontSize: '0.95rem' },
-  actions: { display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' },
+  actions: { display: 'flex', gap: '0.75rem', marginTop: '1rem', marginBottom: '1rem', flexWrap: 'wrap' },
   button: {
     padding: '0.6rem 1.4rem',
     fontSize: '0.95rem',
-    backgroundColor: '#4361ee',
+    backgroundColor: '#1f3f78',
     color: '#fff',
     border: 'none',
     borderRadius: 6,
@@ -106,9 +109,9 @@ const styles: Record<string, React.CSSProperties> = {
   buttonSecondary: {
     padding: '0.6rem 1.4rem',
     fontSize: '0.95rem',
-    backgroundColor: '#e0e0e0',
-    color: '#333',
-    border: 'none',
+    backgroundColor: '#eef3fb',
+    color: '#1f3f78',
+    border: '1px solid #cfdcf2',
     borderRadius: 6,
     cursor: 'pointer',
     fontWeight: 600,
@@ -125,14 +128,14 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '1rem',
   },
   card: {
-    background: '#f8f8fc',
+    background: '#f4f7fc',
     borderRadius: 8,
     padding: '1rem',
-    border: '1px solid #e0e0e0',
+    border: '1px solid #d7e1f1',
     overflow: 'hidden',
     minWidth: 0,
   },
-  cardTitle: { margin: '0 0 0.5rem', fontSize: '0.95rem', color: '#4361ee' },
+  cardTitle: { margin: '0 0 0.5rem', fontSize: '0.95rem', color: '#1f3f78' },
   cardPre: {
     background: '#1a1a2e',
     color: '#a5d6a7',
