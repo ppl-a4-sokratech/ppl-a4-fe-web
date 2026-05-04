@@ -5,13 +5,11 @@ import {
   useBehavioral,
   useSDKFingerprint,
   useDetection,
-  useBehavioralAnalysis,
   useSokratech,
   type IngestApiResponse,
 } from "@ppl-sokratech-sdk/ppl-a4-sdk-web";
 import { AuthDebugModal, type AuthDebugPayload } from "@/components/AuthDebugModal";
 import {
-  sanitizeAnalysisResult,
   sanitizeDetectionData,
   sanitizeFingerprintData,
   useConfigCheck,
@@ -123,7 +121,6 @@ export function LoginDemo() {
   const { drain } = useBehavioral();
   const { collect } = useSDKFingerprint();
   const { detect } = useDetection();
-  const { analyze } = useBehavioralAnalysis();
   const { sdk } = useSokratech();
   const { sdkRecipes } = useConfigCheck();
 
@@ -166,9 +163,7 @@ export function LoginDemo() {
     setTransportSource(null);
 
     try {
-      const t0Analyze = performance.now();
-      const analysisData = sanitizeAnalysisResult(analyze(), sdkRecipes);
-      const analyzeMs = performance.now() - t0Analyze;
+      const analyzeMs = 0;
 
       const t0Fingerprint = performance.now();
       const fingerprintData = sanitizeFingerprintData(await collect(useCache ? undefined : true), sdkRecipes);
@@ -201,10 +196,10 @@ export function LoginDemo() {
       setDecision(ingestResponse);
       setTransportSource(source);
       setDebugPayload({
-        behavioral: analysisData?.payload ?? null,
+        behavioral: null,
         fingerprint: fingerprintData,
         detection: detectionData,
-        analysis: analysisData,
+        analysis: null,
         ingestRequest: {
           source: "sdk.flushIngest()",
           note: "Payload is generated internally by SDK v1.1.0",
