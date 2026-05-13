@@ -11,7 +11,7 @@ import type {
 } from "@ppl-sokratech-sdk/ppl-a4-sdk-web";
 
 export const sdkConfig = {
-  apiDomain: "http://ec2-52-45-170-166.compute-1.amazonaws.com:3000",
+  apiDomain: "http://ec2-15-232-87-132.ap-southeast-3.compute.amazonaws.com:3000",
   workflowId: "11111111-1111-4111-8111-111111111111",
   profileId: "22222222-2222-4222-8222-222222222222",
 };
