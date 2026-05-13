@@ -8,6 +8,7 @@ import {
   useSokratech,
   type IngestApiResponse,
 } from "@ppl-sokratech-sdk/ppl-a4-sdk-web";
+import { v4 as uuidv4 } from "uuid";
 import { AuthDebugModal, type AuthDebugPayload } from "@/components/AuthDebugModal";
 import {
   sanitizeDetectionData,
@@ -82,6 +83,14 @@ function createMockIngestResponse(requestId: string): IngestResponsePayload {
       },
     },
   };
+}
+
+function createUuidV4Fallback() {
+  return uuidv4();
+}
+
+function isUuidV4(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
 function TimingBreakdown({ t }: { t: TimingResult }) {
@@ -199,6 +208,9 @@ export function LoginDemo() {
         try {
           if (ingestClient && originalSend) {
             ingestClient.sendIngestData = async (payload: CapturedIngestRequest) => {
+              if (!isUuidV4(payload.requestId)) {
+                payload.requestId = createUuidV4Fallback();
+              }
               capturedIngestRequest = payload;
               return originalSend.call(ingestClient, payload);
             };
@@ -220,9 +232,7 @@ export function LoginDemo() {
       } catch (error) {
         console.log("[LoginDemo] flushIngest failed, using mock response fallback", error);
         source = "mock";
-        const fallbackRequestId = typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `req-${Date.now()}`;
+        const fallbackRequestId = createUuidV4Fallback();
         ingestResponse = createMockIngestResponse(fallbackRequestId);
       }
 
