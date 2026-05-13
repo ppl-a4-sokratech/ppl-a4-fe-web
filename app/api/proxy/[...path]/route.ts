@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_ORIGIN = "http://ec2-52-45-170-166.compute-1.amazonaws.com:3000";
+const BACKEND_ORIGIN = "http://ec2-15-232-87-132.ap-southeast-3.compute.amazonaws.com:3000";
 
 async function proxy(request: NextRequest, pathSegments: string[]) {
   const path = pathSegments.join("/");
