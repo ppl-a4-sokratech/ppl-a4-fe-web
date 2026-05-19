@@ -6,10 +6,11 @@ import { FingerprintDemo } from "@/components/FingerprintDemo";
 import { DetectionDemo } from "@/components/DetectionDemo";
 import { LoginDemo } from "@/components/LoginDemo";
 import { ProfilingDemo } from "@/components/ProfilingDemo";
+import { MonitoringDemo } from "@/components/MonitoringDemo";
 import { SetupCheckModal } from "@/components/SetupCheckModal";
 import { useConfigCheck } from "./providers";
 
-type Tab = "behavioral" | "fingerprint" | "detection" | "login" | "profiling";
+type Tab = "behavioral" | "fingerprint" | "detection" | "login" | "profiling" | "monitoring";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("login");
@@ -25,7 +26,7 @@ export default function Home() {
   const [workflowDraft, setWorkflowDraft] = useState(workflowId);
   const [profileDraft, setProfileDraft] = useState(profileId);
 
-  const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "login", "profiling"];
+  const tabs: Tab[] = ["behavioral", "fingerprint", "detection", "login", "profiling", "monitoring"];
   const activeTabLabel = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
   const isReinitializing = status === "loading";
 
@@ -156,6 +157,7 @@ export default function Home() {
                 {activeTab === "detection" && <DetectionDemo />}
                 {activeTab === "login" && <LoginDemo />}
                 {activeTab === "profiling" && <ProfilingDemo />}
+                {activeTab === "monitoring" && <MonitoringDemo />}
               </main>
             </section>
           </div>
